@@ -19,5 +19,5 @@ workitems:
       adrs:
         - docs/adrs/adr-1-plugin-packaging.md
         - docs/adrs/adr-1-sqlite-storage.md
-      feature: null
+      feature: docs/features/ft-1-skills-analytics.md
       opnote: null
