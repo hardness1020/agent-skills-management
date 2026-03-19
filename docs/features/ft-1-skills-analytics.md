@@ -154,6 +154,39 @@
   - `removed_at`: ISO 8601 timestamp
 - **Returns:** None
 
+### db.upsert_skill_file()
+
+- **Signature:** `upsert_skill_file(conn: sqlite3.Connection, skill_id: int, relative_path: str, file_type: str, hierarchy: str, first_seen_at: str) -> None`
+- **Purpose:** Insert a nested file record or update if it already exists (e.g., re-added after removal)
+- **Parameters:**
+  - `conn`: Active SQLite connection
+  - `skill_id`: Parent skill's row ID
+  - `relative_path`: Path relative to skill root
+  - `file_type`: "markdown", "script", "asset", "reference", or "config"
+  - `hierarchy`: "content" or "script"
+  - `first_seen_at`: ISO 8601 timestamp of first detection
+- **Returns:** None
+
+### db.mark_skill_file_removed()
+
+- **Signature:** `mark_skill_file_removed(conn: sqlite3.Connection, skill_id: int, relative_path: str, removed_at: str) -> None`
+- **Purpose:** Mark a nested file as removed with timestamp
+- **Parameters:**
+  - `conn`: Active SQLite connection
+  - `skill_id`: Parent skill's row ID
+  - `relative_path`: Path relative to skill root
+  - `removed_at`: ISO 8601 timestamp
+- **Returns:** None
+
+### db.get_skill_files()
+
+- **Signature:** `get_skill_files(conn: sqlite3.Connection, skill_id: int) -> list[dict]`
+- **Purpose:** Get all nested files for a skill (including removed ones)
+- **Parameters:**
+  - `conn`: Active SQLite connection
+  - `skill_id`: Parent skill's row ID
+- **Returns:** List of dicts with keys: `relative_path`, `file_type`, `hierarchy`, `first_seen_at`, `removed_at`
+
 ### db.save_snapshot()
 
 - **Signature:** `save_snapshot(conn: sqlite3.Connection, timestamp: str, snapshot: list[dict]) -> None`
@@ -245,8 +278,11 @@
   4. Diff current vs. previous: detect added and removed skills
   5. For each added skill: insert `skill_added` lifecycle event, upsert skill in registry
   6. For each removed skill: insert `skill_removed` lifecycle event, mark skill as removed
-  7. Save current snapshot to DB
-  8. Output empty JSON `{}` to stdout (UserPromptSubmit hooks don't need structured output)
+  7. **Diff nested files per skill**: for each existing skill, compare current `nested_files` list against stored `skill_files` in DB:
+     - New files → call `db.upsert_skill_file()` with current timestamp as `first_seen_at`
+     - Removed files → call `db.mark_skill_file_removed()` with current timestamp
+  8. Save current snapshot to DB
+  9. Output empty JSON `{}` to stdout (UserPromptSubmit hooks don't need structured output)
 
 ---
 
@@ -297,14 +333,17 @@
 
 ### SkillAnalytics.structure_coverage()
 
-- **Signature:** `structure_coverage(conn: sqlite3.Connection, skill_name: str, start: str, end: str) -> dict`
-- **Purpose:** Return per-file access counts within a skill
+- **Signature:** `structure_coverage(conn: sqlite3.Connection, skill_name: str, start: str, end: str, file_grace_period_days: int = 7) -> dict`
+- **Purpose:** Return per-file access counts within a skill, with time-normalized metrics per file
 - **Parameters:**
   - `conn`: Active SQLite connection
   - `skill_name`: Skill identifier
   - `start`: ISO 8601 start timestamp
   - `end`: ISO 8601 end timestamp
-- **Returns:** Dict: `{"skill_name": str, "total_files": int, "accessed_files": int, "depth_score": float, "files": [{"relative_path": str, "file_type": str, "hierarchy": str, "access_count": int}]}`
+  - `file_grace_period_days`: Files younger than this are excluded from the depth score denominator (default 7)
+- **Returns:** Dict: `{"skill_name": str, "total_files": int, "mature_files": int, "accessed_files": int, "depth_score": float, "files": [{"relative_path": str, "file_type": str, "hierarchy": str, "access_count": int, "first_seen_at": str, "days_since_first_seen": int, "access_rate": float, "in_grace_period": bool}]}`
+  - `depth_score` is computed as `accessed_mature_files / mature_files` (files in grace period excluded from both numerator and denominator)
+  - `access_rate` per file is `access_count / days_since_first_seen`
 - **Raises:**
   - `KeyError`: If skill_name not found in DB
 
@@ -364,10 +403,10 @@
 
 - **Method:** GET
 - **Path:** `/api/coverage/{skill_name}/`
-- **Query Params:** `start` (ISO 8601), `end` (ISO 8601)
+- **Query Params:** `start` (ISO 8601), `end` (ISO 8601), `file_grace_days` (int, optional, default 7)
 - **Response Body:**
   ```json
-  {"skill_name": "str", "total_files": 0, "accessed_files": 0, "depth_score": 0.0, "files": [{"relative_path": "str", "file_type": "str", "hierarchy": "str", "access_count": 0}]}
+  {"skill_name": "str", "total_files": 0, "mature_files": 0, "accessed_files": 0, "depth_score": 0.0, "files": [{"relative_path": "str", "file_type": "str", "hierarchy": "str", "access_count": 0, "first_seen_at": "str", "days_since_first_seen": 0, "access_rate": 0.0, "in_grace_period": false}]}
   ```
 - **Error Responses:**
   - `404`: Skill not found
@@ -404,6 +443,8 @@
 - [ ] `inventory_snapshot.py` detects newly added skills by diffing current vs. previous snapshot
 - [ ] `inventory_snapshot.py` detects removed skills by diffing current vs. previous snapshot
 - [ ] `inventory_snapshot.py` handles first run (no previous snapshot) by treating all skills as new
+- [ ] `inventory_snapshot.py` diffs nested files per skill: detects new files added to an existing skill and records `first_seen_at`
+- [ ] `inventory_snapshot.py` diffs nested files per skill: detects files removed from an existing skill and marks them with `removed_at`
 - [ ] `inventory_snapshot.py` completes in < 500ms for 50 skills
 
 ### Skill Discovery
@@ -423,6 +464,9 @@
 - [ ] `insert_lifecycle_event()` writes a row to `skill_lifecycle`
 - [ ] `upsert_skill()` creates a new skill or updates an existing one
 - [ ] `mark_skill_removed()` sets status='removed' and removed_at timestamp
+- [ ] `upsert_skill_file()` inserts a new nested file record with `first_seen_at`
+- [ ] `mark_skill_file_removed()` sets `removed_at` on a nested file record
+- [ ] `get_skill_files()` returns all nested files for a skill including removed ones
 - [ ] `save_snapshot()` stores snapshot and prunes to keep latest 100
 - [ ] DB uses WAL mode for concurrent access
 
@@ -435,14 +479,16 @@
 - [ ] `usefulness_scores()` computes depth_score as unique_files_accessed / total_files
 - [ ] `usefulness_scores()` returns weighted composite score with configurable weights
 - [ ] `usage_trends()` aggregates by day, week, or month correctly
-- [ ] `structure_coverage()` returns file-level access counts with type and hierarchy
+- [ ] `structure_coverage()` returns file-level access counts with type, hierarchy, `first_seen_at`, `days_since_first_seen`, `access_rate`, and `in_grace_period`
+- [ ] `structure_coverage()` excludes files in grace period from depth score denominator
+- [ ] `structure_coverage()` computes per-file `access_rate` as `access_count / days_since_first_seen`
 
 ### Django Dashboard
 - [ ] `GET /api/frequency/` returns JSON array with correct fields
 - [ ] `GET /api/adoption/` returns JSON array with cumulative curves
 - [ ] `GET /api/usefulness/` returns JSON array with score breakdowns
 - [ ] `GET /api/trends/` returns JSON array aggregated by requested granularity
-- [ ] `GET /api/coverage/{skill_name}/` returns file tree with access counts
+- [ ] `GET /api/coverage/{skill_name}/` returns file tree with access counts, per-file age, access rate, and grace period status
 - [ ] `GET /api/skills/` returns all registered skills with status
 - [ ] All API endpoints return empty arrays/objects (not errors) when no data
 - [ ] All API endpoints validate date params and return 400 on invalid input

@@ -189,6 +189,8 @@ class SkillLifecycleEvent:
     scope: str               # "user" | "project" | "local"
     skill_path: str          # absolute path to skill directory
     nested_files: list[str]  # list of files within the skill directory (for total count)
+    added_files: list[str]   # files newly detected in this snapshot diff
+    removed_files: list[str] # files no longer present in this snapshot diff
 ```
 
 ### SkillInfo Data Contract (internal)
@@ -277,9 +279,10 @@ class SkillAnalytics:
         # NO IMPLEMENTATION - interface signature only
 
     def structure_coverage(
-        self, skill_name: str, start: datetime, end: datetime
+        self, skill_name: str, start: datetime, end: datetime,
+        file_grace_period_days: int = 7
     ) -> dict:
-        """Return per-file access counts within a skill."""
+        """Return per-file access counts within a skill, with time-normalized metrics per file."""
         # NO IMPLEMENTATION - interface signature only
 ```
 
@@ -301,8 +304,8 @@ GET /api/usefulness/?start=<iso>&end=<iso>&grace_days=<int>
 GET /api/trends/?start=<iso>&end=<iso>&granularity=<day|week|month>
   Response: [{"date": str, "count": int, "by_skill": {str: int}}]
 
-GET /api/coverage/<skill_name>/?start=<iso>&end=<iso>
-  Response: {"skill_name": str, "total_files": int, "accessed_files": int, "files": [{"path": str, "type": str, "hierarchy": str, "access_count": int}]}
+GET /api/coverage/<skill_name>/?start=<iso>&end=<iso>&file_grace_days=<int>
+  Response: {"skill_name": str, "total_files": int, "accessed_files": int, "depth_score": float, "files": [{"path": str, "type": str, "hierarchy": str, "access_count": int, "first_seen_at": str, "days_since_first_seen": int, "access_rate": float, "in_grace_period": bool}]}
 
 GET /api/skills/
   Response: [{"name": str, "source": str, "scope": str, "status": str, "first_seen": str, "last_invoked": str, "total_files": int}]
@@ -345,6 +348,8 @@ CREATE TABLE skill_files (
     relative_path TEXT NOT NULL,
     file_type TEXT NOT NULL CHECK (file_type IN ('markdown', 'script', 'asset', 'reference', 'config')),
     hierarchy TEXT NOT NULL CHECK (hierarchy IN ('content', 'script')),
+    first_seen_at TEXT NOT NULL,      -- ISO 8601, when this file was first detected
+    removed_at TEXT,                   -- ISO 8601, NULL if still present
     UNIQUE(skill_id, relative_path)
 );
 
