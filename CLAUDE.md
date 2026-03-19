@@ -2,11 +2,17 @@
 
 ## Plugin Release
 
-To push changes to the marketplace, bump the version in `.claude-plugin/plugin.json` before committing. Without a version bump, `claude plugin update` will not pick up new code.
+To push changes to the marketplace:
+
+1. Bump the version in `.claude-plugin/plugin.json`
+2. Commit and push to GitHub
+3. Update the marketplace (use `/plugin` to trigger a marketplace update)
+
+Without both the version bump AND the marketplace update, `claude plugin update` will not pick up new code.
 
 ## Plugin Update
 
-After pushing a new version to GitHub:
+After publishing a new version to the marketplace:
 
 1. Exit Claude Code (`/exit`)
 2. Open a new Claude Code session — it will detect the new version automatically
