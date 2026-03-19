@@ -62,7 +62,8 @@ workitems:
     docs:
       prd: null
       discovery: docs/discovery/disco-4.md
-      specs: []
+      specs:
+        - docs/specs/spec-plugin-packaging.md
       adrs: []
       feature: null
       opnote: null
