@@ -18,7 +18,7 @@ Launch the skills analytics dashboard — a local web UI for viewing skill usage
 When the user asks to open or view the analytics dashboard, start the Django development server:
 
 ```bash
-cd "${CLAUDE_PLUGIN_ROOT}" && uv run python -m django runserver 8787 --settings=dashboard.analytics_project.settings
+cd "${CLAUDE_PLUGIN_ROOT}" && CLAUDE_PLUGIN_DATA="${CLAUDE_PLUGIN_DATA}" uv run python -m django runserver 8787 --settings=dashboard.analytics_project.settings
 ```
 
 Then tell the user:
