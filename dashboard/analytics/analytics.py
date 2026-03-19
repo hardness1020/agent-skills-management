@@ -12,16 +12,22 @@ def frequency_ranking(
     conn: sqlite3.Connection, start: str, end: str
 ) -> list[dict]:
     """Return skills ranked by invocation count in time window."""
+    # Count invocations first, then join skill metadata
     rows = conn.execute(
-        """SELECT si.skill_name, COUNT(*) as cnt,
+        """SELECT si.skill_name, si.cnt,
                   COALESCE(s.source, '') as source,
                   COALESCE(s.scope, '') as scope,
                   COALESCE(s.status, 'active') as status
-           FROM skill_invocations si
-           LEFT JOIN skills s ON si.skill_name = s.name
-           WHERE si.timestamp >= ? AND si.timestamp <= ?
-           GROUP BY si.skill_name
-           ORDER BY cnt DESC""",
+           FROM (
+               SELECT skill_name, COUNT(*) as cnt
+               FROM skill_invocations
+               WHERE timestamp >= ? AND timestamp <= ?
+               GROUP BY skill_name
+           ) si
+           LEFT JOIN skills s ON si.skill_name = s.name AND s.id = (
+               SELECT MIN(id) FROM skills WHERE name = si.skill_name
+           )
+           ORDER BY si.cnt DESC""",
         (start, end),
     ).fetchall()
     return [
