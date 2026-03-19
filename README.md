@@ -1,6 +1,10 @@
 # Skills Analytics for Claude Code
 
-`claude-code` `skills` `analytics` `plugin` `usage-tracking` `django` `sqlite` `hooks` `progressive-disclosure` `open-source`
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-D97757?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 An open-source Claude Code plugin that tracks skill usage and analyzes whether your skills are actually useful.
 
