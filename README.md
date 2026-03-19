@@ -1,5 +1,7 @@
 # Skills Analytics for Claude Code
 
+`claude-code` `skills` `analytics` `plugin` `usage-tracking` `django` `sqlite` `hooks` `progressive-disclosure` `open-source`
+
 An open-source Claude Code plugin that tracks skill usage and analyzes whether your skills are actually useful.
 
 Skills accumulate over time — from `.claude/skills/` folders and installed plugins — but there's no way to know which ones deliver value and which are dead weight. This plugin logs every skill invocation and nested file access, then provides a local dashboard with time-normalized analytics to answer: **which skills should I keep, improve, or remove?**
