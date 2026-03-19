@@ -79,8 +79,8 @@ Use the `/skills-analytics-dashboard` skill in any Claude Code session. It start
 ```
 Claude Code Session (any project)
     |
-    |-- PreToolUse (Skill|Read)  -->  log_event.py  -->  SQLite
     |-- UserPromptSubmit         -->  inventory_snapshot.py --> SQLite
+    |-- PreToolUse (Skill|Read)  -->  log_event.py  -->  SQLite
     |
     |           Django Dashboard (localhost:8787)
     |               |
