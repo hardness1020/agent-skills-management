@@ -55,7 +55,7 @@ workitems:
     id: 4
     description: "Package as Claude Code plugin with user-scope hooks and dashboard skill"
     track: medium
-    stage: D
+    stage: E
     branch: feat/plugin-packaging
     started: 2026-03-19
     checkpoint: 0
@@ -64,6 +64,7 @@ workitems:
       discovery: docs/discovery/disco-4.md
       specs:
         - docs/specs/spec-plugin-packaging.md
-      adrs: []
+      adrs:
+        - docs/adrs/adr-1-plugin-packaging.md
       feature: null
       opnote: null
