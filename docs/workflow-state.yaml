@@ -66,5 +66,5 @@ workitems:
         - docs/specs/spec-plugin-packaging.md
       adrs:
         - docs/adrs/adr-1-plugin-packaging.md
-      feature: null
+      feature: docs/features/ft-4-plugin-packaging.md
       opnote: null
