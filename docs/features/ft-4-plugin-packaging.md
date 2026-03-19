@@ -2,7 +2,7 @@
 
 **File:** docs/features/ft-4-plugin-packaging.md
 **Owner:** Marcus Chang
-**TECH-SPECs:** spec-plugin-packaging.md (v1.0.0) — `docs/specs/spec-plugin-packaging.md`
+**TECH-SPECs:** spec-packaging.md (v1.0.0) — `docs/specs/spec-plugin-packaging.md`, spec-analytics.md (v1.0.0) — `docs/specs/spec-skills-analytics.md`
 
 ---
 
