@@ -14,7 +14,8 @@ workitems:
     docs:
       prd: docs/prds/prd.md
       discovery: docs/discovery/disco-1.md
-      specs: []
+      specs:
+        - docs/specs/spec-skills-analytics.md
       adrs: []
       feature: null
       opnote: null
