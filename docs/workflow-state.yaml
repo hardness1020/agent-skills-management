@@ -102,10 +102,10 @@ workitems:
     id: 7
     description: "Fix file ordering in usefulness tab nested file call to match VS Code explorer structure"
     track: micro
-    stage: F
+    stage: G
     branch: feat/fix-usefulness-tab-file-ordering
     started: 2026-03-19
-    checkpoint: 0
+    checkpoint: 3
     docs:
       prd: null
       discovery: null
