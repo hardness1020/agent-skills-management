@@ -34,6 +34,8 @@ input[type="text"]::placeholder{color:var(--t3)}
 .divider{width:1px;height:28px;background:var(--dark)}
 .btn-refresh{height:32px;background:var(--cyan);color:var(--bg);border:none;border-radius:6px;padding:0 16px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer}
 .btn-refresh:hover{opacity:0.9}
+.grace-tooltip{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--t3);color:var(--t2);font-family:var(--sans);font-size:11px;font-weight:600;cursor:help;margin-left:-8px}
+.grace-tooltip:hover{color:var(--cyan);border-color:var(--cyan)}
 
 /* Tab bar */
 .tab-bar{display:flex;align-items:center;height:44px;background:var(--dark);padding:0 24px;flex-shrink:0}
@@ -180,6 +182,7 @@ input[type="text"]::placeholder{color:var(--t3)}
       <input type="date" id="inp-end">
       <label>Grace</label>
       <input type="number" id="inp-grace" value="7" min="0" max="90">
+      <span class="grace-tooltip" title="Grace period (days): newly installed skills and files are excluded from usefulness scoring during this window, so they aren't penalized before accumulating enough usage data.">?</span>
       <div class="divider"></div>
       <button class="btn-refresh" onclick="refresh()">Refresh</button>
     </div>

@@ -25,6 +25,15 @@ class TestDashboardView:
         assert response.status_code == 200
         assert "text/html" in response["Content-Type"]
 
+    @pytest.mark.unit
+    def test_grace_input_has_tooltip_icon(self, rf):
+        """The Grace input should have a tooltip icon that explains the grace period."""
+        request = rf.get("/")
+        response = views.dashboard(request)
+        html = response.content.decode()
+        assert 'class="grace-tooltip"' in html
+        assert "grace period" in html.lower()
+
 
 # --- GET /api/frequency/ ---
 
