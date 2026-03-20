@@ -89,7 +89,7 @@ Claude Code Session (any project)
 
 Hooks are short-lived Python scripts using only stdlib (`sqlite3`, `json`, `sys`). No Django import overhead in the hot path. The dashboard is a separate process that reads the same SQLite database.
 
-All data stays local in `~/.skills-analytics/skills_analytics.db` (or `${CLAUDE_PLUGIN_DATA}/skills_analytics.db` when installed as a plugin). No telemetry, no remote calls. One shared database across all projects.
+All data stays local in `~/.claude/plugins/data/skills-analytics-claude-skills-management/skills_analytics.db`. No telemetry, no remote calls. One shared database across all projects.
 
 ## Known Issues
 
